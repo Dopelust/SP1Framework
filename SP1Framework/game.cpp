@@ -10,9 +10,11 @@ double elapsedTime;
 double deltaTime;
 bool keyPressed[K_COUNT];
 COORD charLocation;
-COORD bulletLocation;
+COORD missileRLocation;
+COORD missileLLocation;
 COORD consoleSize;
-bool createBullet = 0;
+bool createMissileL = 0;
+bool createMissileR = 0;
 
 void init()
 {
@@ -59,43 +61,71 @@ void update(double dt)
     // Updating the location of the character based on the key press
     if (keyPressed[K_UP] && charLocation.Y > 0)
     {
-        Beep(3000, 100);
         charLocation.Y--; 
     }
 
     if (keyPressed[K_DOWN] && charLocation.Y < consoleSize.Y - 1)
     {
-        Beep(3000, 100);
         charLocation.Y++; 
     }
 
 	if (keyPressed[K_SPACE])
     {
-		createBullet = 1;
-		bulletLocation.X = charLocation.X;
-		bulletLocation.Y = charLocation.Y;
-	}
-		
-	if (createBullet == 1)
-	{
-		Beep(30,100);
-
-		gotoXY(bulletLocation);
-		colour(0x7C);
-		std::cout << "=";
-	
-		bulletLocation.X++;
-		Sleep(50);
-
-		if (bulletLocation.X == consoleSize.X - 1)
+		if (createMissileL == 0)
 		{
-			createBullet = 0;
-			bulletLocation.X = charLocation.X;
-			bulletLocation.Y = charLocation.Y;
+			Beep(10,200);
+			createMissileL = 1;
+			missileLLocation.X = charLocation.X;
+			missileLLocation.Y = charLocation.Y;
 		}
 
+		else if (createMissileL == 1 && createMissileR == 0)
+		{
+			Beep(10,200);
+			createMissileR = 1;
+			missileRLocation.X = charLocation.X;
+			missileRLocation.Y = charLocation.Y + 2;
+		}
 	}
 	
+	if (createMissileL == 1)
+	{
+		missileLLocation.X+=8;
+		Sleep(10);
+
+		if (missileLLocation.X > consoleSize.X - 1)
+		{
+			createMissileL = 0;
+			missileLLocation.X = charLocation.X;
+			missileLLocation.Y = charLocation.Y;
+		}
+	}
+
+	else
+	{
+		missileLLocation.X = charLocation.X;
+		missileLLocation.Y = charLocation.Y;
+	}
+
+	if (createMissileR == 1)
+	{
+		missileRLocation.X+=8;
+		Sleep(10);
+
+		if (missileRLocation.X > consoleSize.X - 1)
+		{
+			createMissileR = 0;
+			missileRLocation.X = charLocation.X;
+			missileRLocation.Y = charLocation.Y;
+		}
+	}
+
+	else
+	{
+		missileRLocation.X = charLocation.X;
+		missileRLocation.Y = charLocation.Y + 2 ;
+	}
+
     // quits the game if player hits the escape key
     if (keyPressed[K_ESCAPE])
 	{
@@ -125,14 +155,17 @@ void render()
 		std::cout << "Fuck";
 	}
 	*/
+
     // render time taken to calculate this frame
     gotoXY(70, 0);
     colour(0x0A);
     std::cout << 1.0 / deltaTime << "fps" << std::endl;
-  
+
+	/*
     gotoXY(0, 0);
     colour(0x59);
     std::cout << elapsedTime << "secs" << std::endl;
+	*/
 
     // render character
     gotoXY(charLocation);
@@ -140,10 +173,12 @@ void render()
     std::cout << "     |\_________________,_" << std::endl;
 	std::cout << "     |     ==== _______)__)"  << std::endl;
 	std::cout << "   __/___  ====_/" << std::endl;
-	std::cout << "  (O____)\\_(_/" << std::endl;
-	std::cout << " (O_ ____)" << std::endl;
-	std::cout << "  (O____)" << std::endl;
 
+	gotoXY(missileLLocation);
+	colour(0x0C);
+	std::cout << "--====>>";
 
-
+	gotoXY(missileRLocation);
+	colour(0x0C);  
+	std::cout << "--====>>";
 }
