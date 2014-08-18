@@ -1,4 +1,4 @@
-// This is the main file for the game logic and function
+﻿// This is the main file for the game logic and function
 //
 //
 #include "game.h"
@@ -10,7 +10,9 @@ double elapsedTime;
 double deltaTime;
 bool keyPressed[K_COUNT];
 COORD charLocation;
+COORD bulletLocation;
 COORD consoleSize;
+bool createBullet = 0;
 
 void init()
 {
@@ -26,7 +28,7 @@ void init()
     consoleSize.Y = csbi.srWindow.Bottom + 1;
 
     // set the character to be in the center of the screen.
-    charLocation.X = consoleSize.X / 2;
+    charLocation.X = 0;
     charLocation.Y = consoleSize.Y / 2;
 
     elapsedTime = 0.0;
@@ -45,6 +47,7 @@ void getInput()
     keyPressed[K_LEFT] = isKeyPressed(VK_LEFT);
     keyPressed[K_RIGHT] = isKeyPressed(VK_RIGHT);
     keyPressed[K_ESCAPE] = isKeyPressed(VK_ESCAPE);
+    keyPressed[K_SPACE] = isKeyPressed(VK_SPACE);
 }
 
 void update(double dt)
@@ -56,28 +59,48 @@ void update(double dt)
     // Updating the location of the character based on the key press
     if (keyPressed[K_UP] && charLocation.Y > 0)
     {
-        Beep(1440, 30);
+        Beep(3000, 100);
         charLocation.Y--; 
     }
-    if (keyPressed[K_LEFT] && charLocation.X > 0)
-    {
-        Beep(1440, 30);
-        charLocation.X--; 
-    }
+
     if (keyPressed[K_DOWN] && charLocation.Y < consoleSize.Y - 1)
     {
-        Beep(1440, 30);
+        Beep(3000, 100);
         charLocation.Y++; 
     }
-    if (keyPressed[K_RIGHT] && charLocation.X < consoleSize.X - 1)
-    {
-        Beep(1440, 30);
-        charLocation.X++; 
-    }
 
+	if (keyPressed[K_SPACE])
+    {
+		createBullet = 1;
+		bulletLocation.X = charLocation.X;
+		bulletLocation.Y = charLocation.Y;
+	}
+		
+	if (createBullet == 1)
+	{
+		Beep(30,100);
+
+		gotoXY(bulletLocation);
+		colour(0x7C);
+		std::cout << "=";
+	
+		bulletLocation.X++;
+		Sleep(50);
+
+		if (bulletLocation.X == consoleSize.X - 1)
+		{
+			createBullet = 0;
+			bulletLocation.X = charLocation.X;
+			bulletLocation.Y = charLocation.Y;
+		}
+
+	}
+	
     // quits the game if player hits the escape key
     if (keyPressed[K_ESCAPE])
+	{
         g_quitGame = true;    
+	}
 }
 
 void render()
@@ -91,19 +114,20 @@ void render()
     //render test screen code (not efficient at all)
     const WORD colors[] =   {
 	                        0x1A, 0x2B, 0x3C, 0x4D, 0x5E, 0x6F,
-	                        0xA1, 0xB2, 0xC3, 0xD4, 0xE5, 0xF6
+	                        0xA1, 0xB2, 0xC3, 0xD4, 0xE5, 0xF6,
+							0xFA, 0xFB, 0xFC, 0xFD
 	                        };
-	
-	for (int i = 0; i < 12; ++i)
+	/*
+	for (int i = 0; i < 16; ++i)
 	{
 		gotoXY(3*i,i+1);
 		colour(colors[i]);
-		std::cout << "WOW";
+		std::cout << "Fuck";
 	}
-
+	*/
     // render time taken to calculate this frame
     gotoXY(70, 0);
-    colour(0x1A);
+    colour(0x0A);
     std::cout << 1.0 / deltaTime << "fps" << std::endl;
   
     gotoXY(0, 0);
@@ -112,8 +136,14 @@ void render()
 
     // render character
     gotoXY(charLocation);
-    colour(0x0C);
-    std::cout << (char)1;
+    colour(0x09);
+    std::cout << "     |\_________________,_" << std::endl;
+	std::cout << "     |     ==== _______)__)"  << std::endl;
+	std::cout << "   __/___  ====_/" << std::endl;
+	std::cout << "  (O____)\\_(_/" << std::endl;
+	std::cout << " (O_ ____)" << std::endl;
+	std::cout << "  (O____)" << std::endl;
 
-    
+
+
 }
