@@ -12,9 +12,11 @@ bool keyPressed[K_COUNT];
 COORD charLocation;
 COORD missileRLocation;
 COORD missileLLocation;
+COORD enemyLocation; 
 COORD consoleSize;
 bool createMissileL = 0;
 bool createMissileR = 0;
+bool createEnemy = 1 ;
 
 void init()
 {
@@ -31,7 +33,10 @@ void init()
 
     // set the character to be in the center of the screen.
     charLocation.X = 0;
-    charLocation.Y = consoleSize.Y / 2;
+    charLocation.Y = consoleSize.Y / 2;  
+
+	enemyLocation.X = 72; 
+	enemyLocation.Y = rand() % 20 ; 
 
     elapsedTime = 0.0;
 }
@@ -71,60 +76,77 @@ void update(double dt)
 
 	if (keyPressed[K_SPACE])
     {
-		if (createMissileL == 0)
-		{
-			Beep(10,200);
-			createMissileL = 1;
-			missileLLocation.X = charLocation.X;
-			missileLLocation.Y = charLocation.Y;
-		}
-
-		else if (createMissileL == 1 && createMissileR == 0)
+		if (createMissileR == 0)
 		{
 			Beep(10,200);
 			createMissileR = 1;
 			missileRLocation.X = charLocation.X;
-			missileRLocation.Y = charLocation.Y + 2;
+			missileRLocation.Y = charLocation.Y + 1;
+		}
+
+		else if (createMissileR == 1 && createMissileL == 0)
+		{
+			Beep(10,200);
+			createMissileL = 1;
+			missileLLocation.X = charLocation.X;
+			missileLLocation.Y = charLocation.Y + 1;
 		}
 	}
-	
+
+	if (createMissileR == 1)
+	{
+		missileRLocation.X+=8;
+
+		if (missileRLocation.X > consoleSize.X - 1)
+		{
+			createMissileR = 0;
+			missileRLocation.X = charLocation.X + 8;
+			missileRLocation.Y = charLocation.Y + 1;
+		}
+	}
+
+	else
+	{
+		missileRLocation.X = charLocation.X + 8 ;
+		missileRLocation.Y = charLocation.Y + 1 ;
+	}
+
 	if (createMissileL == 1)
 	{
 		missileLLocation.X+=8;
-		Sleep(10);
 
 		if (missileLLocation.X > consoleSize.X - 1)
 		{
 			createMissileL = 0;
 			missileLLocation.X = charLocation.X;
-			missileLLocation.Y = charLocation.Y;
+			missileLLocation.Y = charLocation.Y + 1;
 		}
 	}
 
 	else
 	{
 		missileLLocation.X = charLocation.X;
-		missileLLocation.Y = charLocation.Y;
+		missileLLocation.Y = charLocation.Y + 1;
 	}
 
-	if (createMissileR == 1)
+	if (createEnemy == 1)
 	{
-		missileRLocation.X+=8;
-		Sleep(10);
+		enemyLocation.X--;
 
-		if (missileRLocation.X > consoleSize.X - 1)
+		if ( (enemyLocation.X < missileRLocation.X && enemyLocation.Y == missileRLocation.Y) || (enemyLocation.X < missileLLocation.X && enemyLocation.Y == missileLLocation.Y)) 
+		{ 
+			enemyLocation.X = consoleSize.X - 5;
+			enemyLocation.Y = rand() % 20;
+		} 
+
+		if (enemyLocation.X < 5 )
 		{
-			createMissileR = 0;
-			missileRLocation.X = charLocation.X;
-			missileRLocation.Y = charLocation.Y;
+			createEnemy = 1;
+			enemyLocation.X = consoleSize.X - 5;
+			enemyLocation.Y = rand() % 20;
 		}
 	}
 
-	else
-	{
-		missileRLocation.X = charLocation.X;
-		missileRLocation.Y = charLocation.Y + 2 ;
-	}
 
     // quits the game if player hits the escape key
     if (keyPressed[K_ESCAPE])
@@ -168,17 +190,26 @@ void render()
 	*/
 
     // render character
+
+	gotoXY(enemyLocation); 
+	colour(0x0C); 
+	std::cout << "Enemy" ; 
+
     gotoXY(charLocation);
     colour(0x09);
     std::cout << "     |\_________________,_" << std::endl;
 	std::cout << "     |     ==== _______)__)"  << std::endl;
 	std::cout << "   __/___  ====_/" << std::endl;
 
+	gotoXY(missileRLocation);
+	colour(0x0C);  
+	std::cout << "--====>>"; 
+
 	gotoXY(missileLLocation);
 	colour(0x0C);
 	std::cout << "--====>>";
 
-	gotoXY(missileRLocation);
-	colour(0x0C);  
-	std::cout << "--====>>";
+
+
+
 }
